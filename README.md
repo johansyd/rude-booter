@@ -1,4 +1,4 @@
-# rude-booter
+# The Rude Booter
 The rude booter may curse and swear at you, but he will also bootstrap your development environment.
 
 ## Setup
