@@ -3,7 +3,8 @@ The rude booter may curse and swear at you, but he will also bootstrap your deve
 
 ## Setup
 
-You should setup a vagrant bootstrap project on github.
+You should setup a vagrant bootstrap project on github. see: [example](https://github.com/johansyd/vagrant-bootstrap)
+The Rude Booter will use this project as the bootstrap base for setting upp all of the projects defined in your vagrant file.
 
 the VagrantFile should be in the folder: `./vagrant`
 If you want to install vagrant plugins as part of the installation. add a file at the base of your project with the name: `vagrant_plugins`
