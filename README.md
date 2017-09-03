@@ -9,7 +9,7 @@ the VagrantFile should be in the folder: `./vagrant`
 If you want to install vagrant plugins as part of the installation. add a file at the base of your project with the name: `vagrant_plugins`
 Each plugin should be on a separate line.
 Th Rude Booter will clone out all your projects in a folder that you specify. You can use this fact to setup your projects as vhosts that can be used by vagrant to provision them as shared folders.
-The Rude Booter can also run a installation script for each of your projects. Just specify the path to the installation file during the isntallation process. By default, the Rude Booter will use `scripts/install.sh` from the base of any github project you tell it to clone.
+The Rude Booter can also run a installation script for each of your projects. Just specify the path to the installation file during the installation process. By default, the Rude Booter will use `scripts/install.sh` from the base of any github project that you have told it to clone.
 
 ## Installation
 
