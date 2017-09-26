@@ -27,7 +27,7 @@ declare boot_project_vhosts='';
 declare github_org='';
 declare git_bootstrap_project='';
 declare all_projects_installed='no';
-
+declare create_all_repos_from_file_has_run=false;
 declare installdir="";
 # make sure we don't leave the terminal with some strange color
 trap "printf '%b${txtrst}'" EXIT;
@@ -1071,6 +1071,133 @@ function install_all_repos() {
     done
 }
 
+
+function create_all_repos_from_file () {
+    deps 'boot_project' 'vagrant_bootstrap' 'git' 'gitlfs' || 
+        (error "Either the github organisation did not get set or else git or gitlfs did not get installed. Please don't send me to /dev/null to die!!!" && return 1);
+    
+    repodir=$(basename $vagrant_repo '.git');
+    local -r rude_booter_config=$installdir$repodir"/.rude-booter.json";
+    local -r project_path=$installdir$repodir"/";
+
+    [ ! -f $rude_booter_config ] &&
+        say "The rude booter config file .rude-booter.json, did not exist.\n"\
+            "Please add .rude-booter.json config to the base of your bootstrap project!\n"\
+            "You will have to boot the project manually. \n"\
+            "Do I have to do everything around here!!" && popd > /dev/null && return 1;
+
+
+    say "Going to clone out your projects. into "$project_path;
+
+    info "This may take some time. Prepare to die of old age!!!";
+ 
+    local installed=true;
+
+    echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
+    echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
+
+    #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
+    pip list --format=legacy | grep GitPython &>/dev/null || pip install GitPython;
+    ## Make sure site-packages are added to the path incase python is installed through windows
+    export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
+	    python -c "
+import sys, json, git, os, subprocess
+configFile='"${rude_booter_config}"'
+if not os.path.isfile(configFile):
+    sys.stderr.write(configFile + ' is not a file.\n')
+    exit(1)
+
+if not os.access(configFile, os.R_OK):
+    sys.stderr.write(configFile + ' is not readable.\n')
+    exit(1)
+
+try:
+    with open(configFile) as json_data:
+        config = json.load(json_data)
+except Exception, e:
+    sys.stderr.write('could not read json from '+configFile+' caught error: '+str(e))
+    exit(1)
+
+if not 'projects' in config:
+    sys.stderr.write('no projects specified in '+configFile+'\nPlease make sure there is a projects entry in the config: {\"projects\": []}')
+    exit(1)
+
+os.chdir('"$project_path"')
+
+projects = config['projects'];
+if not isinstance(projects, list):
+    sys.stderr.write('The projects entry in '+configFile+' was not specified as an array.\nPlease make sure the projects entry is an array like this: {\"projects\": []}')
+    exit(1)
+
+if len(projects) < 1:
+    print 'no projects specified in '+configFile
+    exit(1)
+
+for project in projects:
+    if not 'vcs' in project:
+        sys.stderr.write('vcs is not set. Please add: {\"projects\": [{\"vcs\": \"git\"}]}'+'\n')
+        continue
+
+    if not 'path' in project:
+        sys.stderr.write('path is not set. Please add: {\"projects\": [{\"path\": \"/the/path/to/your/project where your project will be cloned.\"}]}'+'\n')
+        continue
+
+    if not 'url' in project:
+        sys.stderr.write('url is not set. Please add: {\"projects\": [{\"url\": \"git@github.com:org/project.git\"}]}'+'\n')
+        continue
+
+    if not project['vcs'] == 'git':
+        sys.stderr.write('We only support cloning from a git repository.'+'\n')
+        continue
+    
+    try:
+        if not os.path.exists(project['path']):
+            os.makedirs(project['path'])
+    except Exception, e:
+        sys.stderr.write('Could not clone ' + project['url'] + ' into ' + project['path'] + '. The path can not be created. Caught error: '+str(e)+'\n')
+        continue
+
+    try:
+        if os.listdir(project['path']) != []:
+            sys.stderr.write(project['path']+' is not empty. Skipping cloning and executing install script.')
+            continue
+        print 'Cloning project into '+project['path']+' from '+project['url']
+        # FIXME comment out when done
+        kwargs = {'recursive': True}
+        git.Repo.clone_from(project['url'], project['path'], **kwargs)
+        print 'done!'
+    except Exception, e:
+        sys.stderr.write('Could not clone ' + project['url'] + ' into ' + project['path'] + '. The path can not be created. Caught error: '+str(e)+'\n')
+        continue
+
+    if not 'install' in project:
+        sys.stderr.write('install is not set. Please add: {\"projects\": [{\"install\": \"scripts/install.sh\"}]}'+'\n')
+        continue
+
+    os.chdir(project['path'])
+
+    if not os.access(project['install'], os.X_OK):
+        sys.stderr.write(project['install'] + ' can not be executed. Please make sure it is an executable script.'+'\n')
+        continue
+
+    try:
+        print 'Executing the install script: ' + '"$project_path"' + project['path'] + '/' + project['install'] + '\nPlease wait...'
+        subprocess.check_output([project['install'], ''])
+        print 'done!'
+    except Exception, e:
+        sys.stderr.write(project['install'] + ' failed. Moving along.'+'\n')
+
+    os.chdir('"$installdir"')
+" || installed=false;
+
+
+    [ $installed == true ] && say "Lucky you! All the crappy projects got cloned." && create_all_repos_from_file_has_run=true && return 0;
+
+    warn "The crappy projects didn't get cloned. Who would have guessed!\n"\
+            "I guess you have to do this shit manually.\n" && return 1;
+}
+
+
 function repeat_or_fail_prompt() {
     local answer=$(prompt_yes_no "Do you want to try this crap again?") &&
         [[ $answer == "yes" ]] || fail "Your crap could not be installed.";
@@ -1217,7 +1344,9 @@ function check_supported_platform () {
 
 function bootstrap_vagrant () {
     is_vagrant_bootstrap_installed || install_vagrant_bootstrap;
-    is_all_repos_installed || install_all_repos;
+    $create_all_repos_from_file_has_run || create_all_repos_from_file;
+
+    ([[ $create_all_repos_from_file_has_run == true ]] || is_all_repos_installed) || install_all_repos;
     deps "vagrant_plugins" "ssh" "gitaccess" "git" || 
         fatal "Could not clone $git_bootstrap_project and all the vagrant plugins. The installation will not work";
     local answer='';
