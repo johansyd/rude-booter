@@ -506,7 +506,7 @@ function install_gitlfs() {
             answer=$(prompt_yes_no \
                 "Have you installed git-lfs?");
                 [[ $answer == "yes" ]] && 
-                info "Continuing the installation." ||
+                info "Continuing the installation. You may need to exit the program and start a new shell so that git-lfs can be used from cygwin." ||
                 warn "I will not be able to setup $git_bootstrap_project without you setting up git and git-lfs.";
             git lfs install || warn "could not install git-lfs. Please see: https://github.com/git-lfs/git-lfs/wiki/Installation";
     esac
@@ -612,6 +612,75 @@ what are you waiting for!");
     [[ $answer == "yes" ]] || error "Could not access git via ssh. You mooron!
 I guess you have to do it manually." && return 1;
     say "Good boy, now roll over!";
+    return 0;
+}
+
+function is_pip_installed () {
+    if found pip; then
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+function install_pip () {
+    local -r url='https://bootstrap.pypa.io/get-pip.py';
+
+    curl -s $url -o get-pip.py
+
+    python get-pip.py
+    rm get-pip.py
+}
+
+function is_python_installed () {
+    # https://github.com/h2oai/h2o-2/wiki/Installing-Python-inside-Cygwin
+
+     local ver=
+    if found python; then
+            local answer='';
+            local ver=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))');
+            local -r minver='2.7.0';
+            local result;
+            result=$(vercomp "${ver}" $minver);
+            if [ "$result" = "2" ]; then
+                fail "You have to install python version: $minver "\
+                    "You have version $ver This is a deal breaker. Die of all age, You relic!!"\
+                    "Go and find some production server you can rape.\n";
+            fi
+
+            say "A sufficent version for vagrant is installed."
+            return 0;
+        else
+            return 1;
+        fi
+}
+
+function install_python () {
+    local -r url_web='https://www.python.org/downloads/';
+    local url;
+    local file;
+    case "$(uname)" in
+        Darwin)
+
+            fail "You have most likely messed up the path to your python binaries. Please clean this up before trying again.";
+            ;;
+        Linux)
+
+            if found yum; then
+                yum install -y python27
+            else
+                fail "Make sure python 2.7 is correctly installed before continuing."
+            fi
+            ;;
+        *)
+            warn "Could not install python stupid? Are you using windows moroon? "\
+                " If so, I can not help you. "\
+                "I guess you have to do it manually.";
+            abort_not_installed "python" $vagrant_url || return 1;
+    esac
+    found vagrant && return 0;
+    answer=$(prompt_yes_no "Do you want to try installing python again?");
+    [[ $answer == "yes" ]] && install_python || warn "You might get issues if the project you bootstrap use python.";
     return 0;
 }
 
@@ -1073,18 +1142,19 @@ function install_all_repos() {
 
 
 function create_all_repos_from_file () {
-    deps 'boot_project' 'vagrant_bootstrap' 'git' 'gitlfs' || 
+    deps 'python' 'pip' 'boot_project' 'vagrant_bootstrap' 'git' 'gitlfs' || 
         (error "Either the github organisation did not get set or else git or gitlfs did not get installed. Please don't send me to /dev/null to die!!!" && return 1);
     
     repodir=$(basename $vagrant_repo '.git');
-    local -r rude_booter_config=$installdir$repodir"/.rude-booter.json";
-    local -r project_path=$installdir$repodir"/";
+    local -r rude_booter_config=$installdir"/"$repodir"/.rude-booter.json";
+    local -r project_path=$installdir"/"$repodir"/";
 
     [ ! -f $rude_booter_config ] &&
         say "The rude booter config file .rude-booter.json, did not exist.\n"\
+            "Expected it to be here: $rude_booter_config.\n"\
             "Please add .rude-booter.json config to the base of your bootstrap project!\n"\
             "You will have to boot the project manually. \n"\
-            "Do I have to do everything around here!!" && popd > /dev/null && return 1;
+            "Do I have to do everything around here!!" && return 1;
 
 
     say "Going to clone out your projects. into "$project_path;
@@ -1092,6 +1162,9 @@ function create_all_repos_from_file () {
     info "This may take some time. Prepare to die of old age!!!";
  
     local installed=true;
+
+     
+
 
     echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
     echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
@@ -1181,8 +1254,10 @@ for project in projects:
         continue
 
     try:
+
+
         print 'Executing the install script: ' + '"$project_path"' + project['path'] + '/' + project['install'] + '\nPlease wait...'
-        subprocess.check_output([project['install'], ''])
+        subprocess.call(project['install'])
         print 'done!'
     except Exception, e:
         sys.stderr.write(project['install'] + ' failed. Moving along.'+'\n')
@@ -1302,17 +1377,34 @@ function show_welcome_message () {
     printf "${bldblu}%b" "";
 
     cat <<"EOF"
-
-                  (\.---./)
-                   /.-.-.\
-                  /| 0_0 |\
-                 |_`-(v)-'_|
-                 \`-._._.-'/      .-.
-           -~-(((.`-\_|_/-'.)))-~' <_
-                  `.     .'
-        Hello, I am `._.' the rude
-                   booter!!
-           -----~--~---~~~----~-`.-;~
+                  ,--.    ,--.
+    Hello, I am  ((O ))--((O ))  the rude booter!!!
+               ,'_`--'____`--'_`.
+              _:  ____________  :_
+             | | ||::::::::::|| | |
+             | | ||::::::::::|| | |
+             | | ||::::::::::|| | |
+             |_| |/__________\| |_|
+               |________________|
+            __..-'            `-..__
+         .-| : .----------------. : |-.
+       ,\ || | |\______________/| | || /.
+      /`.\:| | ||  __  __  __  || | |;/,'\
+     :`-._\;.| || '--''--''--' || |,:/_.-':
+     |    :  | || .-WORKS-FOR. || |  :    |
+     |    |  | || '---BEER---' || |  |    |
+     |    |  | ||   _   _   _  || |  |    |
+     :,--.;  | ||  (_) (_) (_) || |  :,--.;
+     (`-'|)  | ||______________|| |  (|`-')
+      `--'   | |/______________\| |   `--'
+             |____________________|
+              `.________________,'
+               (_______)(_______)
+               (_______)(_______)
+               (_______)(_______)
+               (_______)(_______)
+              |        ||        |
+              '--------''--------'
 EOF
 say "
 I can be quite rude at times, but please hang in there 
@@ -1355,14 +1447,14 @@ function bootstrap_vagrant () {
         "You also need to install the necessary vm provider plugins for vagrant manually.\n"\
         "Read more: https://docs.vagrantup.com/v2/vmware/installation.html";
     ! is_virtualbox_installed && answer=$(prompt_yes_no "Do you want to install virtualbox? If you already have it installed, say no.");
-    [[ $answer == "no" ]] &&  show_done_message && return 0;
+    [[ $answer == "no" ]] &&  return 0;
     [[ $answer == "yes" ]] && install_virtualbox;
-    is_virtualbox_installed || error "Virtualbox couldn't be installed. You have to do it manually, unluck bastard!";
+    is_virtualbox_installed || error "Virtualbox couldn't be installed. You have to do it manually, unlucky bastard!";
 }
 
 check_interactive;
 check_supported_platform;
 show_welcome_message;
 bootstrap_vagrant;
-is_vagrant_bootstrap_installed && show_done_message
+is_vagrant_bootstrap_installed && show_done_message;
 exit 0;
