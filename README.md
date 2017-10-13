@@ -1,6 +1,10 @@
 # The Rude Booter
 The rude booter may curse and swear at you, but he will also bootstrap your development environment.
 
+## Website
+
+Go to: [The Rude Booter](https://johansyd.github.io/rude-booter/)
+
 ## Setup
 
 You should setup your own vagrant bootstrap project on github. see: [example](https://github.com/johansyd/vagrant-bootstrap)
