@@ -4,7 +4,7 @@
 
 If you did, we know exactly how you feel.
 
-We made [`The Rude Booter`](https://github.com/johansyd/rude-booter) because we believe it should be easy to bootstrap new developers and projects.
+We made [*The Rude Booter*](https://github.com/johansyd/rude-booter) because we believe it should be easy to bootstrap new developers and projects.
 It shouldn't matter whether you use Windows, Mac or Linux. Bootstrapping your projects should happen the same way running just one command.
 
     bash <(\curl -s "https://raw.githubusercontent.com/johansyd/rude-booter/master/scripts/install.sh")
