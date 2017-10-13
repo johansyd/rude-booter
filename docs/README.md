@@ -11,6 +11,6 @@ It shouldn't matter whether you use Windows, Mac or Linux. Bootstrapping your pr
     
 And...
 
-To all windows users. Please use [*babun*](http://babun.github.io/). It will bring sunshine back to your life.
+To all Windows users. Please use [*babun*](http://babun.github.io/). It will bring sunshine back to your life.
 
 For further information regarding how to setup your bootstrap project. Please go to our community [*"wiki"*](https://github.com/johansyd/rude-booter/wiki/How-to-setup-your-first-bootstrap-project).
