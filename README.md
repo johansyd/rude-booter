@@ -22,15 +22,11 @@ The Rude Booter can also run a installation script for each of your projects. Ju
 Recommended:
 
 - Install [babun](http://babun.github.io/)
-- Install [vagrant](https://www.vagrantup.com/downloads.html)
-- Install [virtualbox](https://www.virtualbox.org/)
 
-Optional:
+Required:
 
-NB: needed if you want to be able to build projects from Windows. Certain project installations might fail depending on whether the build step is included in the installation process.
+NB: Comes preinstalled with most systems including [babun](http://babun.github.io/)
 
-- Install [.NET Framework 2.0 Software Development Kit](https://www.microsoft.com/en-us/download/details.aspx?id=15354)
-- Install [Visual Studio Express](https://www.visualstudio.com/vs/visual-studio-express/)
 - Install [Python](https://www.python.org/downloads/release/python-2713/)
 
 ## Usage Mac/Ubuntu/(Windows with Cygwin)
