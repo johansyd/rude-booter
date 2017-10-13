@@ -1,6 +1,6 @@
 - Have you ever spent weeks trying to bootstrap a project?
-- Did you ever deploy directly to a sub-folder on your prosduction server because there wasn't enough time to set up a decent staging and/or development environment?
-- Did you ever work year-in and year-out on a project because nobody else knew how to get the project up and running.
+- Did you ever deploy directly to a sub-folder on your production server because there wasn't enough time to set up a decent staging and/or development environment?
+- Did you ever work year-in and year-out on a project because nobody else knew how to get the project up and running?
 
 If you did, we know exactly how you feel.
 
