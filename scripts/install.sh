@@ -496,7 +496,6 @@ function install_gitlfs() {
             fi
             ;;
         *)
-            is_gitlfs_installed && return 0; 
             info "You will need to install git-lfs, but are working from a system where this can not automaticly be installed.";
             local answer=$(prompt_yes_no \
                 "Do you want to go to the website where the recipy is?");
@@ -506,9 +505,8 @@ function install_gitlfs() {
             answer=$(prompt_yes_no \
                 "Have you installed git-lfs?");
                 [[ $answer == "yes" ]] && 
-                info "Continuing the installation. You may need to exit the program and start a new shell so that git-lfs can be used from cygwin." ||
-                warn "I will not be able to setup $git_bootstrap_project without you setting up git and git-lfs.";
-            git lfs install || warn "could not install git-lfs. Please see: https://github.com/git-lfs/git-lfs/wiki/Installation";
+                warn "The Babun/Cygwin terminal needs to be closed and reopned before you can continue with the installation. Please restart the script after you have done so." && exit 0;
+                
     esac
     is_gitlfs_installed && return 0;
     answer=$(prompt_yes_no "Do you want to try installing gitlfs again?");
