@@ -1208,7 +1208,7 @@ function create_all_repos_from_file () {
     echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
 
     #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
-    pip list --format=legacy | grep GitPython &>/dev/null || pip install GitPython;
+    pip list --format=legacy | grep GitPython &>/dev/null || sudo pip install GitPython;
     ## Make sure site-packages are added to the path incase python is installed through windows
     export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
 	    python -c "
