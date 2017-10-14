@@ -41,7 +41,7 @@ If you are using cygwin. Please install babun, open File Explorer, right click a
 
     cd ~/
     bash <(\curl -s "https://raw.githubusercontent.com/johansyd/rude-booter/master/scripts/install.sh")
-    ## 1. I will tell the Rude Booter that my organization is johansyd
-    ## 2. I will then tell him that my bootstrap project's name is: [vagrant-bootstrap](https://github.com/johansyd/vagrant-bootstrap)
-    ## 3. I will tell him that my vhosts folder should be: vhosts and not ../vhosts
-    ## 4. I can the choose to clone out a repository and choose vhost.vagrant.domain.com to be my shared folder on the host side.
+    
+1. I will tell the Rude Booter that my organization is johansyd
+2. I will then tell him that my bootstrap project's name is: [vagrant-bootstrap](https://github.com/johansyd/vagrant-bootstrap)
+3. The rude Booter will then look at my .rude-booter.json config and clone out my projects and install any vagrant plugins.
