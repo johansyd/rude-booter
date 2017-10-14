@@ -748,33 +748,71 @@ function is_vagrant_plugins_installed () {
 }
 
 function install_vagrant_plugins () {
-    deps 'vagrant_bootstrap' 'vagrant' || 
-        (error "$git_bootstrap_project and vagrant did not get installed. Please don't send me to /dev/null to die!!!" && return 1);
+        deps 'python' 'pip' 'boot_project' 'vagrant_bootstrap' || 
+        (error "Either the github organisation did not get set or else git or gitlfs did not get installed. Please don't send me to /dev/null to die!!!" && return 1);
     
     repodir=$(basename $vagrant_repo '.git');
-    local -r vagrant_plugins_file=$installdir"/"$repodir"/vagrant_plugins";
+    local -r rude_booter_config=$installdir"/"$repodir"/.rude-booter.json";
+    local -r project_path=$installdir"/"$repodir"/";
 
-    [ ! -f $vagrant_plugins_file ] && touch $vagrant_plugins_file &&
-        say "The vagrant_plugins file $vagrant_plugins_file did not exist, but was created.\n"\
-            "Please add some vagrant_plugins to the vagrant_plugins file if needed!\n"\
-            "each plugin in the file needs to be on a separate line in the file. \n"\
-            "Do I have to do everything around here!!" && popd > /dev/null && return 0;
+    [ ! -f $rude_booter_config ] &&
+        say "The rude booter config file .rude-booter.json, did not exist.\n"\
+            "Expected it to be here: $rude_booter_config.\n"\
+            "Please add .rude-booter.json config to the base of your bootstrap project!\n"\
+            "You will have to installl your vagrant plugins manually. \n"\
+            "Do I have to do everything around here!!" && return 1;
 
-    IFS=$'\r\n' vagrant_plugins=($(cat "${vagrant_plugins_file}"));
 
-    [ -z ${vagrant_plugins:-} ] && popd > /dev/null;
-
-    say "Going to install the following crappy vagrant plugins: $vagrant_plugins";
+    say "Going to install all your crappy vagrant plugins.";
 
     info "This may take some time. Prepare to die of old age!!!";
  
-    local vagrant_plugin='';
     local installed=true;
-    for vagrant_plugin in $vagrant_plugins; do
-        [ "$(vagrant plugin list | grep $vagrant_plugin | cut -d' ' -f1)" = "$vagrant_plugin" ] && continue;
-        ! vagrant plugin install $vagrant_plugin && installed=false &&
-            warn "Could not install the crappy $vagrant_plugin. Your vagrant version might not be high enough.";
-    done
+
+    echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
+    echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
+
+    #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
+    pip list --format=legacy | grep GitPython &>/dev/null || pip install GitPython;
+    ## Make sure site-packages are added to the path incase python is installed through windows
+    export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
+        python -c "
+import sys, json, os, subprocess
+configFile='"${rude_booter_config}"'
+if not os.path.isfile(configFile):
+    sys.stderr.write(configFile + ' is not a file.\n')
+    exit(1)
+
+if not os.access(configFile, os.R_OK):
+    sys.stderr.write(configFile + ' is not readable.\n')
+    exit(1)
+
+try:
+    with open(configFile) as json_data:
+        config = json.load(json_data)
+except Exception, e:
+    sys.stderr.write('could not read json from '+configFile+' caught error: '+str(e))
+    exit(1)
+if not 'vagrant_plugins' in config:
+    sys.stdout.write('no vagrant_plugins specified in '+configFile+'\nSo noone will be installed: {\"vagrant_plugins\": []}')
+    exit(0)
+plugins = config['vagrant_plugins'];
+if not isinstance(plugins, list):
+    sys.stderr.write('The vagrant_plugins entry in '+configFile+' was not specified as a list.\nPlease make sure the vagrant_plugins entry is a list like this: {\"vagrant_plugins\": []}')
+    exit(0)
+if len(plugins) < 1:
+    print 'no vagrant_plugins specified in '+configFile
+    exit(0)
+
+for plugin in plugins:
+    try:
+        subprocess.call('vagrant plugin install ' + plugin, shell=True)
+        print 'done!'
+    except Exception, e:
+        sys.stderr.write('Installation of vagrant plugin ' + plugin + ' failed. Moving along.'+'\n')
+
+exit(0)
+        ";
 
 
     [ $installed == true ] && say "Lucky you! All the crappy plugins is installed." && return 0;
