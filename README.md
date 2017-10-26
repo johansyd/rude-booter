@@ -17,17 +17,17 @@ Please read [How to setup your first bootstrap project](https://github.com/johan
 
 ## Installation
 
-### Dependencies for Windows
+#### Windows
 
-Recommended:
+#### Recommended:
 
 - Install [babun](http://babun.github.io/)
 
-Required:
+#### Required:
 
 NB: Comes preinstalled with most systems including [babun](http://babun.github.io/)
 
-- Install [Python](https://www.python.org/downloads/release/python-2713/)
+- [Python 2.7.13](https://www.python.org/downloads/release/python-2713/)
 
 ## Usage Mac/Ubuntu/(Windows with Cygwin)
 
