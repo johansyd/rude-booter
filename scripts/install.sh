@@ -1260,6 +1260,10 @@ for project in projects:
         continue
     
     try:
+        if os.listdir(project['path']) != []:
+            sys.stderr.write(project['path']+' is not empty. Skipping cloning and executing install script.')
+            continue
+	
         if not os.path.exists(project['path']):
             os.makedirs(project['path'])
     except Exception, e:
