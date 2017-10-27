@@ -1259,11 +1259,7 @@ for project in projects:
         sys.stderr.write('We only support cloning from a git repository.'+'\n')
         continue
     
-    try:
-        if os.listdir(project['path']) != []:
-            sys.stderr.write(project['path']+' is not empty. Skipping cloning and executing install script.')
-            continue
-	
+    try:	
         if not os.path.exists(project['path']):
             os.makedirs(project['path'])
     except Exception, e:
