@@ -1243,6 +1243,7 @@ if len(projects) < 1:
     exit(1)
 
 for project in projects:
+    os.chdir('"$project_path"')
     if not 'vcs' in project:
         sys.stderr.write('vcs is not set. Please add: {\"projects\": [{\"vcs\": \"git\"}]}'+'\n')
         continue
