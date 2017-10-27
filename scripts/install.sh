@@ -722,11 +722,11 @@ function install_vagrant () {
     local file;
     case "$(uname)" in
         Darwin)
-            url='https://releases.hashicorp.com/vagrant/1.9.5/vagrant_1.9.5_x86_64.dmg'
+            url='https://releases.hashicorp.com/vagrant/1.9.8/vagrant_1.9.8_x86_64.dmg'
             file=`mktemp`; curl "$url" -o $file && hdiutil mount $file; rm $file
             ;;
         Linux)
-            url='https://releases.hashicorp.com/vagrant/1.8.6/vagrant_1.8.6_x86_64.deb'
+            url='https://releases.hashicorp.com/vagrant/1.9.8/vagrant_1.9.8_x86_64.deb'
             file=`mktemp`; wget "$url" -qO $file && sudo dpkg -i $file; rm $file
             ;;
         *)
