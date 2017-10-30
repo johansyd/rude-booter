@@ -624,10 +624,17 @@ function is_pip_installed () {
 function install_pip () {
     local -r url='https://bootstrap.pypa.io/get-pip.py';
 
-    curl -s $url -o get-pip.py
+    case "$(uname)" in
+        Darwin)
+            brew install pip2;
+            ;;
+        *)
+            curl -s $url -o get-pip.py
+            python2.7 get-pip.py
+            rm get-pip.py
+    esac
 
-    python2.7 get-pip.py
-    rm get-pip.py
+    
 }
 
 function is_python_installed () {
@@ -648,7 +655,7 @@ function install_python () {
     local file;
     case "$(uname)" in
         Darwin)
-            fail "Make sure python 2.7 is correctly installed before continuing. You have most likely messed up the path to your python site-packages. Please clean this up before trying again.";
+            brew install python2;
             ;;
         Linux)
 
