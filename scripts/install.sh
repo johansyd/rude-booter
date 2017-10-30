@@ -754,7 +754,10 @@ function install_vagrant_plugins () {
     info "This may take some time. Prepare to die of old age!!!";
  
     local installed=true;
-    echo $PATH | grep '/usr/local/opt/python/libexec/bin' &>/dev/null || export PATH=$PATH":/usr/local/opt/python/libexec/bin";
+    echo $PATH | grep '/usr/local/share/python' &>/dev/null || PATH="/usr/local/share/python:"${PATH}
+    echo $PATH | grep '/usr/local/opt/python/libexec/bin' &>/dev/null || export PATH="/usr/local/opt/python/libexec/bin:"${PATH}
+    echo $PYTHONPATH | grep '/usr/local/lib/python2.7/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/usr/local/lib/python2.7/site-packagess";
+    echo $PYTHONPATH | grep '/Library/Python/2.7/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/Library/Python/2.7/site-packages";
     echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
     echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
 
