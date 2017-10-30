@@ -623,12 +623,6 @@ function is_pip_installed () {
 
 function install_pip () {
     local -r url='https://bootstrap.pypa.io/get-pip.py';
-
-    case "$(uname)" in
-        Darwin)
-            python2.7 -m pip install --upgrade pip;
-            ;;
-        *)
             curl -s $url -o get-pip.py
             python2.7 get-pip.py
             rm get-pip.py
