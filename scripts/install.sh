@@ -655,7 +655,7 @@ function install_python () {
     local file;
     case "$(uname)" in
         Darwin)
-            brew install python2;
+            brew install python2.7;
             ;;
         Linux)
 
