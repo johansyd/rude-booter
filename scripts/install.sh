@@ -634,19 +634,8 @@ function is_python_installed () {
     # https://github.com/h2oai/h2o-2/wiki/Installing-Python-inside-Cygwin
 
      local ver=
-    if found python; then
-            local answer='';
-            local ver=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))');
-            local -r minver='2.7.0';
-            local result;
-            result=$(vercomp "${ver}" $minver);
-            if [ "$result" = "2" ]; then
-                fail "You have to install python version: $minver "\
-                    "You have version $ver This is a deal breaker. Die of all age, You relic!!"\
-                    "Go and find some production server you can rape.\n";
-            fi
-
-            say "A sufficent version for vagrant is installed."
+    if found python2.7; then
+            say "A sufficent version for python is installed."
             return 0;
         else
             return 1;
@@ -659,8 +648,7 @@ function install_python () {
     local file;
     case "$(uname)" in
         Darwin)
-
-            fail "You have most likely messed up the path to your python binaries. Please clean this up before trying again.";
+            fail "Make sure python 2.7 is correctly installed before continuing. You have most likely messed up the path to your python site-packages. Please clean this up before trying again.";
             ;;
         Linux)
 
