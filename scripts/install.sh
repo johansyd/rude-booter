@@ -626,7 +626,7 @@ function install_pip () {
 
     case "$(uname)" in
         Darwin)
-            brew install pip2;
+            python2 -m pip install --upgrade pip;
             ;;
         *)
             curl -s $url -o get-pip.py
