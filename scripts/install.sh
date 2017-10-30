@@ -626,7 +626,7 @@ function install_pip () {
 
     curl -s $url -o get-pip.py
 
-    python get-pip.py
+    python2.7 get-pip.py
     rm get-pip.py
 }
 
