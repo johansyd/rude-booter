@@ -766,15 +766,15 @@ function install_vagrant_plugins () {
     info "This may take some time. Prepare to die of old age!!!";
  
     local installed=true;
-
+    echo $PATH | grep '/usr/local/opt/python/libexec/bin' &>/dev/null || export PATH=$PATH":/usr/local/opt/python/libexec/bin";
     echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
     echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
 
     #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
-    pip list --format=legacy | grep GitPython &>/dev/null || pip install GitPython;
+    pip2.7 list --format=legacy | grep GitPython &>/dev/null || pip2.7 install GitPython;
     ## Make sure site-packages are added to the path incase python is installed through windows
     export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
-        python -c "
+        python2.7 -c "
 import sys, json, os, subprocess
 configFile='"${rude_booter_config}"'
 if not os.path.isfile(configFile):
