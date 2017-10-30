@@ -635,7 +635,7 @@ function is_python_installed () {
 
      local ver=
     if found python2.7; then
-            say "A sufficent version for python is installed."
+            say "Make sure python 2.7 is installed."
             return 0;
         else
             return 1;
