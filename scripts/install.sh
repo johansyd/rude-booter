@@ -1218,7 +1218,7 @@ function create_all_repos_from_file () {
     info "This may take some time. Prepare to die of old age!!!";
  
     local installed=true;
-    
+    info "We are going to install some python dependencies. Please use your password if asked.";
     #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
     pip list --format=legacy | grep GitPython &>/dev/null || sudo pip install GitPython;
     
