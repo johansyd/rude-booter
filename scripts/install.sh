@@ -269,6 +269,7 @@ function is_virtualbox_installed () {
 
 function install_virtualbox () {
     local -r virtualbox_url='https://www.virtualbox.org/';
+    info "We are going to install virtualbox. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             abort_not_installed "VirtualBox" $virtualbox_url || return 1;
@@ -314,6 +315,7 @@ function install_virtualbox () {
 
 ### ruby
 function install_ruby () {
+    info "We are going to install ruby. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -376,6 +378,7 @@ function is_ruby_installed () {
 ### ssh
 
 function install_ssh () {
+    info "We are going to install ssh. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             deps 'ruby';
@@ -468,7 +471,7 @@ function is_gitlfs_installed () {
 
 function install_gitlfs() {
   deps 'git';
-
+    info "We are going to install gitlfs. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             deps 'ruby';
@@ -515,6 +518,7 @@ function install_gitlfs() {
 }
 
 function install_git () {
+    info "We are going to install git. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             deps 'ruby';
@@ -614,6 +618,10 @@ I guess you have to do it manually." && return 1;
 }
 
 function is_pip_installed () {
+    echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
+    echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
+    ## Make sure site-packages are added to the path incase python is installed through windows
+    export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
     if found pip; then
         return 0;
     else
@@ -623,17 +631,33 @@ function is_pip_installed () {
 
 function install_pip () {
     local -r url='https://bootstrap.pypa.io/get-pip.py';
+    info "We are going to install pip. An package manager for python. Please enter your password if requested.";
+    case "$(uname)" in
+        Darwin)
+            sudo easy_install pip
+            ;;
+        Linux)
             curl -s $url -o get-pip.py
-            python2.7 get-pip.py
-            rm get-pip.py
+	    sudo python2.7 get-pip.py
+	    rm get-pip.py
+            ;;
+        *)
+            curl -s $url -o get-pip.py
+	    python2.7 get-pip.py
+	    rm get-pip.py
     esac
-
     
+    
+    
+    
+    
+    return 0;
 }
 
 function is_python_installed () {
     # https://github.com/h2oai/h2o-2/wiki/Installing-Python-inside-Cygwin
-
+    echo $PATH | grep '/usr/local/share/python' &>/dev/null || PATH="/usr/local/share/python:"${PATH};
+    echo $PATH | grep '/usr/local/opt/python/libexec/bin' &>/dev/null || export PATH="/usr/local/opt/python/libexec/bin:"${PATH};
      local ver=
     if found python2.7; then
             say "Make sure python 2.7 is installed."
@@ -647,6 +671,7 @@ function install_python () {
     local -r url_web='https://www.python.org/downloads/';
     local url;
     local file;
+    
     case "$(uname)" in
         Darwin)
             brew install python2.7;
@@ -709,6 +734,7 @@ function install_vagrant () {
     local -r vagrant_url='http://www.ccl.net/pub/chemistry/software/UNIX/VagrantAndCygwin/index.html';
     local url;
     local file;
+    info "We are going to install vagrant. Please enter your password if requested.";
     case "$(uname)" in
         Darwin)
             url='https://releases.hashicorp.com/vagrant/1.9.8/vagrant_1.9.8_x86_64.dmg'
@@ -1192,17 +1218,10 @@ function create_all_repos_from_file () {
     info "This may take some time. Prepare to die of old age!!!";
  
     local installed=true;
-
-     
-
-
-    echo $PYTHONPATH | grep '/lib/python2.7' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/lib/python2.7";
-    echo $PYTHONPATH | grep '/cygdrive/c/Python27/lib/site-packages' &>/dev/null || export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages";
-
+    
     #FIXME make sure pip is installed. If the person has python < 2.7.9, then pip is not installed also make sure the lib is there
     pip list --format=legacy | grep GitPython &>/dev/null || sudo pip install GitPython;
-    ## Make sure site-packages are added to the path incase python is installed through windows
-    export PYTHONPATH=$PYTHONPATH":/cygdrive/c/Python27/lib/site-packages"
+    
 	    python -c "
 import sys, json, git, os, subprocess
 configFile='"${rude_booter_config}"'
